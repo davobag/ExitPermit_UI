@@ -19,6 +19,7 @@ const navGroups: NavGroup[] = [
     title: "مدیریت",
     items: [
       { label: "داشبورد",       path: "/admin",            icon: "⊞" },
+      { label: "واحدها", path: "/admin/units", icon: "🏢" },
       { label: "مجوزهای خروج", path: "/admin/permits",     icon: "📋" },
       { label: "کاربران",       path: "/admin/users",       icon: "👥" },
       { label: "دروازه‌ها",    path: "/admin/gates",       icon: "🚪" },
