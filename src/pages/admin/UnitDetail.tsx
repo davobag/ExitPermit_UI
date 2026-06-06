@@ -3,18 +3,19 @@ import { useParams, useNavigate } from "react-router-dom";
 
 interface Owner {
   id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   mobile: string;
+  nationalCode: string;
 }
 
 interface Representative {
   id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   mobile: string;
-  isPrimary: boolean;
-  canAddRepresentative: boolean;
+  nationalCode: string;
 }
-
 interface UnitDetail {
   id: string;
   name: string;
@@ -31,21 +32,27 @@ const mockUnitDetails: Record<string, UnitDetail> = {
     name: "شرکت آلفا تجارت",
     monthlyQuota: 20,
     isActive: true,
-    owner: { id: "u1", fullName: "علی محمدی", mobile: "09121234567" },
+    owner: {
+      id: "u1",
+      firstName: "علی",
+      lastName: "محمدی",
+      mobile: "09121234567",
+      nationalCode: "0012345678",
+    },
     representatives: [
       {
         id: "r1",
-        fullName: "رضا کریمی",
+        firstName: "رضا",
+        lastName: "کریمی",
         mobile: "09351234567",
-        isPrimary: true,
-        canAddRepresentative: true,
+        nationalCode: "0087654321",
       },
       {
         id: "r2",
-        fullName: "سارا احمدی",
+        firstName: "سارا ",
+        lastName: "احمدی",
         mobile: "09181234567",
-        isPrimary: false,
-        canAddRepresentative: false,
+        nationalCode: "0045678901",
       },
     ],
   },
@@ -77,33 +84,56 @@ export default function UnitDetail() {
   // state های modal
   const [showOwnerModal, setShowOwnerModal] = useState(false);
   const [showRepModal, setShowRepModal] = useState(false);
-  const [newOwner, setNewOwner] = useState({ fullName: "", mobile: "" });
-  const [newRep, setNewRep] = useState({
-    fullName: "",
+  const [newOwner, setNewOwner] = useState({
+    firstName: "",
+    lastName: "",
     mobile: "",
-    isPrimary: false,
-    canAddRepresentative: false,
+    nationalCode: "",
+  });
+  const [newRep, setNewRep] = useState({
+    firstName: "",
+    lastName: "",
+    mobile: "",
+    nationalCode: "",
   });
 
   if (!unit)
     return <div className="text-center py-20 text-gray-400">واحد پیدا نشد</div>;
 
   function handleAddOwner() {
-    if (!newOwner.fullName || !newOwner.mobile || !unit) return;
-    setUnit({ ...unit, owner: { id: Date.now().toString(), ...newOwner } });
-    setNewOwner({ fullName: "", mobile: "" });
+    if (
+      !newOwner.firstName ||
+      !newOwner.lastName ||
+      !newOwner.mobile ||
+      !newOwner.nationalCode ||
+      !unit
+    )
+      return;
+
+    setUnit({
+      ...unit,
+      owner: { id: unit.owner?.id ?? Date.now().toString(), ...newOwner },
+    });
+    setNewOwner({ firstName: "", lastName: "", mobile: "", nationalCode: "" });
     setShowOwnerModal(false);
   }
 
   function handleAddRep() {
-    if (!newRep.fullName || !newRep.mobile || !unit) return;
+    if (
+      !newRep.firstName ||
+      !newRep.lastName ||
+      !newRep.nationalCode ||
+      !newRep.mobile ||
+      !unit
+    )
+      return;
     const rep: Representative = { id: Date.now().toString(), ...newRep };
     setUnit({ ...unit, representatives: [...unit.representatives, rep] });
     setNewRep({
-      fullName: "",
+      firstName: "",
+      lastName: "",
       mobile: "",
-      isPrimary: false,
-      canAddRepresentative: false,
+      nationalCode: "",
     });
     setShowRepModal(false);
   }
@@ -182,11 +212,11 @@ export default function UnitDetail() {
           {unit.owner ? (
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 text-sm font-medium flex items-center justify-center">
-                {unit.owner.fullName.charAt(0)}
+                {unit.owner.lastName.charAt(0)}
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-800">
-                  {unit.owner.fullName}
+                  {unit.owner.lastName}
                 </p>
                 <p className="text-xs text-gray-400">{unit.owner.mobile}</p>
               </div>
@@ -196,8 +226,10 @@ export default function UnitDetail() {
               <button
                 onClick={() => {
                   setNewOwner({
-                    fullName: unit.owner!.fullName,
+                    firstName: unit.owner!.firstName,
+                    lastName: unit.owner!.lastName,
                     mobile: unit.owner!.mobile,
+                    nationalCode: unit.owner!.nationalCode,
                   });
                   setShowOwnerModal(true);
                 }}
@@ -235,23 +267,13 @@ export default function UnitDetail() {
               {unit.representatives.map((rep) => (
                 <div key={rep.id} className="flex items-center gap-3 py-3">
                   <div className="w-9 h-9 rounded-full bg-gray-100 text-gray-600 text-sm font-medium flex items-center justify-center">
-                    {rep.fullName.charAt(0)}
+                    {unit.owner?.lastName.charAt(0)}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-gray-800">
-                        {rep.fullName}
+                        {rep.lastName}
                       </p>
-                      {rep.isPrimary && (
-                        <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">
-                          نماینده اصلی
-                        </span>
-                      )}
-                      {rep.canAddRepresentative && (
-                        <span className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">
-                          می‌تواند نماینده اضافه کند
-                        </span>
-                      )}
                     </div>
                     <p className="text-xs text-gray-400">{rep.mobile}</p>
                   </div>
@@ -276,16 +298,28 @@ export default function UnitDetail() {
               افزودن مالک
             </h2>
             <div className="mb-4">
+              <label className="text-sm text-gray-600 block mb-1.5">نام</label>
+              <input
+                type="text"
+                value={newOwner.firstName}
+                onChange={(e) =>
+                  setNewOwner({ ...newOwner, firstName: e.target.value })
+                }
+                placeholder="مثلاً: علی"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+              />
+            </div>
+            <div className="mb-4">
               <label className="text-sm text-gray-600 block mb-1.5">
-                نام و نام خانوادگی
+                نام خانوادگی
               </label>
               <input
                 type="text"
-                value={newOwner.fullName}
+                value={newOwner.lastName}
                 onChange={(e) =>
-                  setNewOwner({ ...newOwner, fullName: e.target.value })
+                  setNewOwner({ ...newOwner, lastName: e.target.value })
                 }
-                placeholder="مثلاً: علی محمدی"
+                placeholder="مثلاً: محمدی"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
               />
             </div>
@@ -300,6 +334,21 @@ export default function UnitDetail() {
                   setNewOwner({ ...newOwner, mobile: e.target.value })
                 }
                 placeholder="مثلاً: 09121234567"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+              />
+            </div>
+            <div className="mb-6">
+              <label className="text-sm text-gray-600 block mb-1.5">
+                کد ملی
+              </label>
+              <input
+                type="text"
+                value={newOwner.nationalCode}
+                onChange={(e) =>
+                  setNewOwner({ ...newOwner, nationalCode: e.target.value })
+                }
+                placeholder="مثلاً: 0012345678"
+                maxLength={10}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
               />
             </div>
@@ -329,16 +378,43 @@ export default function UnitDetail() {
               افزودن نماینده
             </h2>
             <div className="mb-4">
+              <label className="text-sm text-gray-600 block mb-1.5">نام</label>
+              <input
+                type="text"
+                value={newRep.firstName}
+                onChange={(e) =>
+                  setNewRep({ ...newRep, firstName: e.target.value })
+                }
+                placeholder="مثلاً: رضا"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+              />
+            </div>
+            <div className="mb-4">
               <label className="text-sm text-gray-600 block mb-1.5">
-                نام و نام خانوادگی
+                نام خانوادگی
               </label>
               <input
                 type="text"
-                value={newRep.fullName}
+                value={newRep.lastName}
                 onChange={(e) =>
-                  setNewRep({ ...newRep, fullName: e.target.value })
+                  setNewRep({ ...newRep, lastName: e.target.value })
                 }
-                placeholder="مثلاً: رضا کریمی"
+                placeholder="مثلاً: کریمی"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="text-sm text-gray-600 block mb-1.5">
+                کد ملی
+              </label>
+              <input
+                type="text"
+                value={newRep.nationalCode}
+                onChange={(e) =>
+                  setNewRep({ ...newRep, nationalCode: e.target.value })
+                }
+                placeholder="مثلاً: 0012345678"
+                maxLength={10}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
               />
             </div>
@@ -357,36 +433,11 @@ export default function UnitDetail() {
               />
             </div>
             <div className="mb-4 flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="isPrimary"
-                checked={newRep.isPrimary}
-                onChange={(e) =>
-                  setNewRep({ ...newRep, isPrimary: e.target.checked })
-                }
-                className="rounded"
-              />
               <label htmlFor="isPrimary" className="text-sm text-gray-600">
                 نماینده اصلی
               </label>
             </div>
-            <div className="mb-6 flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="canAdd"
-                checked={newRep.canAddRepresentative}
-                onChange={(e) =>
-                  setNewRep({
-                    ...newRep,
-                    canAddRepresentative: e.target.checked,
-                  })
-                }
-                className="rounded"
-              />
-              <label htmlFor="canAdd" className="text-sm text-gray-600">
-                می‌تواند نماینده اضافه کند
-              </label>
-            </div>
+
             <div className="flex gap-2">
               <button
                 onClick={handleAddRep}
