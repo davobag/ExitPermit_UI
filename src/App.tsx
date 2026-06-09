@@ -4,6 +4,7 @@ import AdminLayout from "./layouts/AdminLayout"
 import Dashboard from "./pages/admin/Dashboard"
 import Units from "./pages/admin/Units"
 import UnitDetail from "./pages/admin/UnitDetail"
+import GuardDashboard from "./pages/guard/GuardDashboard"
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
         <Route path="/admin/units" element={<AdminLayout><Units /></AdminLayout>} />
         <Route path="/admin/units/:id" element={<AdminLayout><UnitDetail /></AdminLayout>} />
+        <Route path="/guard" element={<GuardDashboard></GuardDashboard>} />
       </Routes>
     </BrowserRouter>
   )
