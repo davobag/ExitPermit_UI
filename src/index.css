@@ -30,6 +30,17 @@
     font-size: 16px;
   }
 }
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Vazirmatn', sans-serif;
+  --font-mono: 'Vazirmatn RD', monospace; /* برای پلاک */
+}
+
+* {
+  font-family: var(--font-sans);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
