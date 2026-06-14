@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
-import type { Cargo } from "../../../types/representative";
+import  type { Cargo } from "../../../types/representative";
+import ConfirmModal from "../../../components/shared/ConfirmModal";
 
 interface CargoTabProps {
   cargos: Cargo[];
@@ -16,6 +17,7 @@ export default function CargoTab({ cargos, onChange }: CargoTabProps) {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<CargoForm>({ name: "", code: "" });
+  const [deleteTarget, setDeleteTarget] = useState<Cargo | null>(null);
 
   const openAdd = () => {
     setEditId(null);
@@ -42,6 +44,13 @@ export default function CargoTab({ cargos, onChange }: CargoTabProps) {
 
   const onDelete = (id: string) => {
     onChange(cargos.filter((c) => c.id !== id));
+  };
+
+  const confirmDelete = () => {
+    if (deleteTarget) {
+      onDelete(deleteTarget.id);
+      setDeleteTarget(null);
+    }
   };
 
   return (
@@ -108,7 +117,7 @@ export default function CargoTab({ cargos, onChange }: CargoTabProps) {
                 <Pencil className="w-3.5 h-3.5" />
               </button>
               <button
-                onClick={() => onDelete(c.id)}
+                onClick={() => setDeleteTarget(c)}
                 className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -116,6 +125,14 @@ export default function CargoTab({ cargos, onChange }: CargoTabProps) {
             </div>
           </div>
         ))
+      )}
+      {deleteTarget && (
+        <ConfirmModal
+          title="حذف کالا"
+          message={`آیا از حذف «${deleteTarget.name}» مطمئن هستید؟`}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
       )}
     </div>
   );

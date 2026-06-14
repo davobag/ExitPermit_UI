@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
 import type { Vehicle } from "../../../types/representative";
 import { VEHICLE_TYPES } from "../../../types/vehicleType";
+import ConfirmModal from "../../../components/shared/ConfirmModal";
 
 interface VehicleTabProps {
   vehicles: Vehicle[];
@@ -20,6 +21,7 @@ export default function VehicleTab({ vehicles, onChange }: VehicleTabProps) {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<VehicleForm>(EMPTY_FORM);
+  const [deleteTarget, setDeleteTarget] = useState<Vehicle | null>(null);
 
   const openAdd = () => { setEditId(null); setForm(EMPTY_FORM); setShowForm(true); };
   const openEdit = (v: Vehicle) => {
@@ -42,6 +44,13 @@ export default function VehicleTab({ vehicles, onChange }: VehicleTabProps) {
 
   const onDelete = (id: string) => onChange(vehicles.filter((v) => v.id !== id));
 
+  const confirmDelete = () => {
+    if (deleteTarget) {
+      onDelete(deleteTarget.id);
+      setDeleteTarget(null);
+    }
+  };
+
   return (
     <div className="p-4 flex flex-col gap-3">
       <button
@@ -60,7 +69,7 @@ export default function VehicleTab({ vehicles, onChange }: VehicleTabProps) {
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             placeholder="نام خودرو (مثلاً پژو ۴۰۵)"
-            className="w-full  py-2 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400 bg-white"
+            className="w-full py-2 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400 bg-white"
             autoFocus
           />
           <select
@@ -73,7 +82,7 @@ export default function VehicleTab({ vehicles, onChange }: VehicleTabProps) {
             ))}
           </select>
           {/* پلاک */}
-          <div className="flex gap-1.5 overflow-hidden">
+          <div className="flex gap-1.5">
             {[
               { idx: 0, placeholder: "۱۲", maxLen: 2 },
               { idx: 1, placeholder: "ب",  maxLen: 2 },
@@ -90,7 +99,7 @@ export default function VehicleTab({ vehicles, onChange }: VehicleTabProps) {
                   setForm((f) => ({ ...f, plate: p }));
                 }}
                 placeholder={placeholder}
-                className="flex-1 min-w-0 py-2 px-2 border border-gray-200 rounded-lg text-sm font-semibold text-center outline-none focus:border-blue-400 bg-white"
+                className="flex-1 py-2 px-2 border border-gray-200 rounded-lg text-sm font-semibold text-center outline-none focus:border-blue-400 bg-white"
               />
             ))}
           </div>
@@ -133,7 +142,7 @@ export default function VehicleTab({ vehicles, onChange }: VehicleTabProps) {
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  onClick={() => onDelete(v.id)}
+                  onClick={() => setDeleteTarget(v)}
                   className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -142,6 +151,14 @@ export default function VehicleTab({ vehicles, onChange }: VehicleTabProps) {
             </div>
           );
         })
+      )}
+      {deleteTarget && (
+        <ConfirmModal
+          title="حذف خودرو"
+          message={`آیا از حذف «${deleteTarget.name}» مطمئن هستید؟`}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
       )}
     </div>
   );

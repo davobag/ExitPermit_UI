@@ -18,18 +18,19 @@ const navGroups: NavGroup[] = [
   {
     title: "مدیریت",
     items: [
-      { label: "داشبورد",       path: "/admin",            icon: "⊞" },
+      { label: "داشبورد", path: "/admin", icon: "⊞" },
+      { label: "زون", path: "/admin/zone", icon: "🏘️" },
       { label: "واحدها", path: "/admin/units", icon: "🏢" },
-      { label: "مجوزهای خروج", path: "/admin/permits",     icon: "📋" },
-      { label: "کاربران",       path: "/admin/users",       icon: "👥" },
-      { label: "دروازه‌ها",    path: "/admin/gates",       icon: "🚪" },
+      { label: "برگه‌های خروج", path: "/admin/permits", icon: "📋" },
+      { label: "درب‌خروج", path: "/admin/gates", icon: "🚪" },
+      { label: "نگهبانان", path: "/admin/guards", icon: "🛡️" },
     ],
   },
   {
     title: "گزارشات",
     items: [
-      { label: "آمار و تحلیل", path: "/admin/analytics",  icon: "📊" },
-      { label: "لاگ فعالیت",  path: "/admin/logs",        icon: "🕐" },
+      { label: "آمار و تحلیل", path: "/admin/analytics", icon: "📊" },
+      { label: "لاگ فعالیت", path: "/admin/logs", icon: "🕐" },
     ],
   },
 ];
@@ -60,7 +61,6 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       <nav className="flex-1 py-3 overflow-y-auto">
         {navGroups.map((group) => (
           <div key={group.title} className="mb-4">
-            
             {/* عنوان گروه */}
             <div className="px-4 py-1 text-xs text-gray-400 font-medium">
               {group.title}
@@ -74,9 +74,10 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 end={item.path === "/admin"} // فقط برای داشبورد exact match
                 className={({ isActive }) => `
                   flex items-center gap-2.5 px-4 py-2 text-sm transition-colors
-                  ${isActive
-                    ? "text-gray-900 font-medium bg-gray-50"
-                    : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+                  ${
+                    isActive
+                      ? "text-gray-900 font-medium bg-gray-50"
+                      : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
                   }
                 `}
               >
@@ -84,7 +85,6 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 {item.label}
               </NavLink>
             ))}
-
           </div>
         ))}
       </nav>
