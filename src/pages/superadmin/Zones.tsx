@@ -1,14 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import apiClient from "../../api/apiClient";
+import { ENDPOINTS } from "../../api/endpoints";
 import { Plus, MapPin, Pencil, Building2, FileText } from "lucide-react";
 import type { Zone, NewZoneForm } from "../../types/zoneSuperAdmin";
-import { MOCK_ZONES } from "../../mocks/zonesSuperAdmin_mock";
+// import { MOCK_ZONES } from "../../mocks/zonesSuperAdmin_mock";
 import { toPersianDigits } from "../../utils/numbers";
 import ZoneFormModal from "./components/ZoneFormModal";
 
 export default function Zones() {
-  const [zones, setZones] = useState<Zone[]>(MOCK_ZONES);
+   const [zones, setZones] = useState<Zone[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  // const [zones, setZones] = useState<Zone[]>(MOCK_ZONES);
   const [editTarget, setEditTarget] = useState<Zone | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  useEffect(()=>{apiClient.get(ENDPOINTS.zones.list)
+    .then(res=>setZones(res.data))
+    .catch(()=>setError("خطا در دریافت اطلاعات زون ها"))
+    .finally(()=>setLoading(false))
+  },[]);
+  if (loading) return <div className="text-center p-8">در حال بارگذاری...</div>
+   if (error) return <div className="text-center p-8 text-red-500">{error}</div>
 
   const toggleActive = (id: string) => {
     setZones((prev) =>

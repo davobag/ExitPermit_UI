@@ -13,6 +13,7 @@ import Zone from "./pages/admin/Zone";
 import Permits from "./pages/admin/Permits";
 import SuperAdminLayout from "./layouts/SuperAdminLayout";
 import Zones from "./pages/superadmin/Zones";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -85,17 +86,15 @@ function App() {
             </AdminLayout>
           }
         />
-        {/* <Route path="/superadmin/zones" element={
-  <ProtectedRoute roles={["SuperAdmin"]}>
-    <SuperAdminLayout><Zones /></SuperAdminLayout>
-  </ProtectedRoute>
-} /> */}
+        {/* SuperAdmin */}
         <Route
           path="/superadmin/zones"
           element={
-            <SuperAdminLayout>
-              <Zones />
-            </SuperAdminLayout>
+            <ProtectedRoute roles={["SuperAdmin"]}>
+              <SuperAdminLayout>
+                <Zones />
+              </SuperAdminLayout>
+            </ProtectedRoute>
           }
         />
       </Routes>

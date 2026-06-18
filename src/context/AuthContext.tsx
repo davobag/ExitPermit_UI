@@ -1,10 +1,13 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import type { User } from "../types/user";
+import apiClient from "../api/apiClient";
+import { ENDPOINTS } from "../api/endpoints";
+import { setAuthToken } from "../api/apiClient";
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (token: string, user: User) => void;
+  accessToken: string | null;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -12,31 +15,38 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(
-    () => localStorage.getItem("token")
-  );
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("user");
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  const login = (newToken: string, newUser: User) => {
-    localStorage.setItem("token", newToken);
-    localStorage.setItem("user", JSON.stringify(newUser));
-    setToken(newToken);
-    setUser(newUser);
+  const [user, setUser] = useState<User | null>(null);
+
+  // LOGIN
+  const login = async (phoneNumber: string, password: string) => {
+    const res = await apiClient.post(ENDPOINTS.auth.login, {
+      phoneNumber,
+      password,
+    });
+
+    setAccessToken(res.data.accessToken);
+    setAuthToken(res.data.accessToken);
+    setUser(res.data.user);
   };
 
+  //LOGOUT
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
+    setAccessToken(null);
+    setAuthToken(null);
     setUser(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, logout, isAuthenticated: !!token }}
+      value={{
+        user,
+        accessToken,
+        login,
+        logout,
+        isAuthenticated: !!accessToken,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -48,5 +58,3 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 }
-
-
