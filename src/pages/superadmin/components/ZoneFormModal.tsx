@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Zone, NewZoneForm } from "../../../types/zoneSuperAdmin";
 import { Image as ImageIcon } from "lucide-react";
+import PermitDetailModal from "../../admin/components/PermitDetailModal";
 
 interface ZoneFormModalProps {
   zone?: Zone | null;
@@ -15,10 +16,11 @@ export default function ZoneFormModal({
 }: ZoneFormModalProps) {
   const [form, setForm] = useState<NewZoneForm>({
     name: zone?.name ?? "",
+    description: zone?.description ?? "",
     logoUrl: zone?.logoUrl ?? null,
     defaultMonthlyQuota: zone?.defaultMonthlyQuota ?? 20,
+    permitExpiryHours: zone?.permitExpiryHours ?? 24,
   });
-
   const isValid = form.name.trim() && form.defaultMonthlyQuota >= 0;
 
   const handleSave = () => {
@@ -47,6 +49,18 @@ export default function ZoneFormModal({
             placeholder="مثلاً: شهرک صنعتی البرز"
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
             autoFocus
+          />
+        </div>
+        <div className="mb-4">
+          <label className="text-sm text-gray-600 block mb-1.5">توضیحات</label>
+          <input
+            type="text"
+            value={form.description ?? ""}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, description: e.target.value }))
+            }
+            placeholder="توضیح کوتاه درباره زون"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
           />
         </div>
         <div className="mb-4">
@@ -104,6 +118,28 @@ export default function ZoneFormModal({
             />
             <span className="text-xs text-gray-400 bg-gray-50 px-3 py-2 rounded-lg whitespace-nowrap">
               برگه
+            </span>
+          </div>
+        </div>
+        <div className="mb-6">
+          <label className="text-sm text-gray-600 block mb-1.5">
+            مدت اعتبار برگه (ساعت)
+          </label>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              value={form.permitExpiryHours}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  permitExpiryHours: Number(e.target.value),
+                }))
+              }
+              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            />
+            <span className="text-xs text-gray-400 bg-gray-50 px-3 py-2 rounded-lg whitespace-nowrap">
+              ساعت
             </span>
           </div>
         </div>

@@ -8,5 +8,6 @@ export const ENDPOINTS = {
   },
    zones: {
     list: `${BASE}/zones`,
+    create: `${BASE}/zones`,
   },
 } as const;

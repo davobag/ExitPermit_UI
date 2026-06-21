@@ -3,42 +3,49 @@ import apiClient from "../../api/apiClient";
 import { ENDPOINTS } from "../../api/endpoints";
 import { Plus, MapPin, Pencil, Building2, FileText } from "lucide-react";
 import type { Zone, NewZoneForm } from "../../types/zoneSuperAdmin";
-// import { MOCK_ZONES } from "../../mocks/zonesSuperAdmin_mock";
 import { toPersianDigits } from "../../utils/numbers";
 import ZoneFormModal from "./components/ZoneFormModal";
 
 export default function Zones() {
-   const [zones, setZones] = useState<Zone[]>([]);
+  const [zones, setZones] = useState<Zone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // const [zones, setZones] = useState<Zone[]>(MOCK_ZONES);
   const [editTarget, setEditTarget] = useState<Zone | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  useEffect(()=>{apiClient.get(ENDPOINTS.zones.list)
-    .then(res=>setZones(res.data))
-    .catch(()=>setError("خطا در دریافت اطلاعات زون ها"))
-    .finally(()=>setLoading(false))
-  },[]);
-  if (loading) return <div className="text-center p-8">در حال بارگذاری...</div>
-   if (error) return <div className="text-center p-8 text-red-500">{error}</div>
+  useEffect(() => {
+    apiClient
+      .get(ENDPOINTS.zones.list)
+      .then((res) => setZones(res.data))
+      .catch(() => setError("خطا در دریافت اطلاعات زون ها"))
+      .finally(() => setLoading(false));
+  }, []);
+  if (loading) return <div className="text-center p-8">در حال بارگذاری...</div>;
+  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
 
-  const toggleActive = (id: string) => {
-    setZones((prev) =>
-      prev.map((z) => (z.id === id ? { ...z, isActive: !z.isActive } : z)),
-    );
-  };
-
-  const handleAdd = (form: NewZoneForm) => {
-    const zone: Zone = {
-      id: Date.now().toString(),
-      ...form,
-      unitsCount: 0,
-      issuedPermitsCount: 0,
-      isActive: true,
-    };
-    setZones((prev) => [...prev, zone]);
-    setShowAddModal(false);
+  const handleAdd = async (form: NewZoneForm) => {
+    try {
+      const res = await apiClient.post(ENDPOINTS.zones.create, {
+        name: form.name,
+        description: form.description,
+        logoPath: form.logoUrl,
+        defaultMonthlyQuota: form.defaultMonthlyQuota,
+        permitExpiryHours: form.permitExpiryHours,
+      });
+      // زون جدید رو به لیست اضافه کن
+      const newZone: Zone = {
+        id: res.data.zoneId,
+        ...form,
+        unitsCount: 0,
+        issuedPermitsCount: 0,
+        isActive: true,
+      };
+      setZones((prev) => [...prev, newZone]);
+      setShowAddModal(false);
+    } catch {
+      alert("خطا در افزودن زون");
+    }
   };
 
   const handleEditSave = (form: NewZoneForm) => {
@@ -94,20 +101,6 @@ export default function Zones() {
                   </span>
                 </div>
               </div>
-
-              <button
-                onClick={() => toggleActive(z.id)}
-                className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${
-                  z.isActive ? "bg-green-500" : "bg-gray-200"
-                }`}
-                aria-label={z.isActive ? "غیرفعال کردن" : "فعال کردن"}
-              >
-                <span
-                  className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${
-                    z.isActive ? "right-0.5" : "right-4"
-                  }`}
-                />
-              </button>
             </div>
 
             <div className="flex gap-2 mb-3">
